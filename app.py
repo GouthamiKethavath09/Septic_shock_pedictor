@@ -96,16 +96,7 @@ if file:
         data_array = df.values
 
 # ---------------- PREDICT ---------------- #
-st.markdown("""
-<style>
-div.stButton > button {
-    color: black !important;
-    background-color: white !important;
-    border-radius: 10px;
-    font-weight: bold;
-}
-</style>
-""", unsafe_allow_html=True)
+
 if st.button("🚀 Analyze Patient"):
 
     if data_array is None:
