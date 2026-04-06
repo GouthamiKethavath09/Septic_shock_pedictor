@@ -59,7 +59,7 @@ FEATURE_NAMES = [
 
 # ---------------- LOAD ---------------- #
 model = load_model("septic_model.h5", compile=False)
-scaler = pickle.load(open("scaler.pkl", "rb"))
+scaler = pickle.load(open("Notebook/scaler.pkl", "rb"))
 
 st.set_page_config(layout="wide")
 
