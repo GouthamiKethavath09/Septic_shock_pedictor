@@ -96,6 +96,14 @@ if file:
         data_array = df.values
 
 # ---------------- PREDICT ---------------- #
+st.markdown("""
+<style>
+/* Button text color */
+div.stButton > button {
+    color: black !important;
+}
+</style>
+""", unsafe_allow_html=True)
 if st.button("🚀 Analyze Patient"):
 
     if data_array is None:
