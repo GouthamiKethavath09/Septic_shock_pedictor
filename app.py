@@ -131,7 +131,30 @@ if st.button("🚀 Analyze Patient"):
         with col3:
             st.markdown("<div class='glass'><h3>Confidence</h3></div>", unsafe_allow_html=True)
             st.metric("Model Confidence", f"{pred*100:.1f}%")
+        def show_comparison(df):
+            st.subheader("📊 Patient vs Normal Range")
 
+            normal = {
+        "bp": 120,
+        "heart_rate": 75,
+        "lactate": 1.0,
+        "wbc": 7
+          }
+           current = {
+        "bp": df["bp"].iloc[-1],
+        "heart_rate": df["heart_rate"].iloc[-1],
+        "lactate": df["lactate"].iloc[-1],
+        "wbc": df["wbc"].iloc[-1]
+    }
+
+          comp_df = pd.DataFrame({
+        "Parameter": list(normal.keys()),
+        "Patient": list(current.values()),
+        "Normal": list(normal.values())
+    })
+
+         st.bar_chart(comp_df.set_index("Parameter"))
+            
  # ---------------- SUMMARY ---------------- #
         st.markdown("<div class='glass'><h3>📋 Clinical Summary</h3></div>", unsafe_allow_html=True)
 
