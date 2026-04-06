@@ -183,28 +183,3 @@ Provides actionable suggestions:
 
 ---
 
-## 🎯 Use Cases
-- Hospitals & ICUs  
-- Clinical decision support systems  
-- Healthcare analytics platforms  
-- Medical research  
-
----
-
-## 🧠 Interview Explanation
-Developed an AI-based time-series LSTM model for septic shock prediction using ICU data and integrated it with a Streamlit dashboard for real-time risk analysis, visualization, and clinical insights.
-
----
-
-## 👨‍💻 Author
-Peyyala Gandhi  
-B.Tech Mining Engineering  
-Data Analytics & AI Enthusiast  
-
----
-
-## ⭐ Conclusion
-This project demonstrates how Artificial Intelligence, Deep Learning, and Data Visualization can be combined to solve real-world healthcare problems and support clinical decision-making through early detection and intelligent monitoring.
-
-
-
