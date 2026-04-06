@@ -98,9 +98,11 @@ if file:
 # ---------------- PREDICT ---------------- #
 st.markdown("""
 <style>
-/* Button text color */
 div.stButton > button {
     color: black !important;
+    background-color: white !important;
+    border-radius: 10px;
+    font-weight: bold;
 }
 </style>
 """, unsafe_allow_html=True)
