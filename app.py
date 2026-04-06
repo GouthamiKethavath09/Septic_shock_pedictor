@@ -79,6 +79,30 @@ st.sidebar.info("""
 - Age
 """)
 
+# ---------------- FUNCTION (FIXED POSITION) ---------------- #
+def show_comparison(df):
+    normal = {
+        "bp": 120,
+        "heart_rate": 75,
+        "lactate": 1.0,
+        "wbc": 7
+    }
+
+    current = {
+        "bp": df["bp"].iloc[-1],
+        "heart_rate": df["heart_rate"].iloc[-1],
+        "lactate": df["lactate"].iloc[-1],
+        "wbc": df["wbc"].iloc[-1]
+    }
+
+    comp_df = pd.DataFrame({
+        "Parameter": list(normal.keys()),
+        "Patient": list(current.values()),
+        "Normal": list(normal.values())
+    })
+
+    st.bar_chart(comp_df.set_index("Parameter"))
+
 # ---------------- UPLOAD ---------------- #
 st.markdown("## 📂 Upload Patient Data")
 file = st.file_uploader("Upload CSV (24×7)", type=["csv"])
@@ -96,7 +120,6 @@ if file:
         data_array = df.values
 
 # ---------------- PREDICT ---------------- #
-
 if st.button("🚀 Analyze Patient"):
 
     if data_array is None:
@@ -131,30 +154,8 @@ if st.button("🚀 Analyze Patient"):
         with col3:
             st.markdown("<div class='glass'><h3>Confidence</h3></div>", unsafe_allow_html=True)
             st.metric("Model Confidence", f"{pred*100:.1f}%")
-def show_comparison(df):
-    normal = {
-        "bp": 120,
-        "heart_rate": 75,
-        "lactate": 1.0,
-        "wbc": 7
-    }
 
-    current = {
-        "bp": df["bp"].iloc[-1],
-        "heart_rate": df["heart_rate"].iloc[-1],
-        "lactate": df["lactate"].iloc[-1],
-        "wbc": df["wbc"].iloc[-1]
-    }
-
-    comp_df = pd.DataFrame({
-        "Parameter": list(normal.keys()),
-        "Patient": list(current.values()),
-        "Normal": list(normal.values())
-    })
-
-    st.bar_chart(comp_df.set_index("Parameter"))        
-            
- # ---------------- SUMMARY ---------------- #
+        # ---------------- SUMMARY ---------------- #
         st.markdown("<div class='glass'><h3>📋 Clinical Summary</h3></div>", unsafe_allow_html=True)
 
         summary = {
@@ -165,6 +166,9 @@ def show_comparison(df):
         }
 
         st.table(pd.DataFrame(summary.items(), columns=["Parameter","Value"]))
+
+        # ---------------- COMPARISON (NOW WORKS) ---------------- #
+        show_comparison(df)
 
         # ---------------- GAUGE ---------------- #
         st.markdown("## 🩺 Risk Meter")
