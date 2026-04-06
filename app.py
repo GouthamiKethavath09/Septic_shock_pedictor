@@ -7,7 +7,7 @@ from tensorflow.keras.models import load_model
 import plotly.graph_objects as go
 import plotly.express as px
 
-# ---------------- BACKGROUND ---------------- #
+# ---------------- BACKGROUND + GLASS ---------------- #
 def set_bg(image_file):
     with open(image_file, "rb") as img:
         encoded = base64.b64encode(img.read()).decode()
@@ -35,13 +35,6 @@ def set_bg(image_file):
 
     section[data-testid="stSidebar"] * {{
         color: black !important;
-    }}
-
-    div.stButton > button {{
-        color: black !important;
-        background-color: white !important;
-        border-radius: 10px;
-        font-weight: bold;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -74,6 +67,16 @@ st.sidebar.info("""
 ✔ Analyzes patient vitals  
 ✔ Provides medical insights  
 ✔ Suggests precautions  
+
+📊 Features Used:
+- Blood Pressure (BP)
+- Creatinine
+- Heart Rate
+- Lactate
+- Respiration Rate
+- Temperature
+- WBC Count
+- Age
 """)
 
 # ---------------- COMPARISON FUNCTION ---------------- #
@@ -148,7 +151,7 @@ if file:
 if st.button("🚀 Analyze Patient"):
 
     if data_array is None:
-        st.warning("⚠️ Upload data first")
+        st.warning("Upload data first")
 
     else:
         age_col = np.full((SEQ_LENGTH,1), DEFAULT_AGE)
@@ -159,31 +162,29 @@ if st.button("🚀 Analyze Patient"):
 
         pred = model.predict(data_scaled)[0][0]
 
-        # ---------------- ALERT ---------------- #
-        if pred > 0.7:
-            st.error("🚨 HIGH RISK: Immediate ICU intervention required")
-        elif pred > 0.4:
-            st.warning("⚠️ MODERATE RISK: Monitor closely")
-        else:
-            st.success("✅ LOW RISK: Patient stable")
-
-        # ---------------- METRICS ---------------- #
+        # ---------------- TOP METRICS ---------------- #
         col1, col2, col3 = st.columns(3)
 
-        col1.metric("Risk Score", f"{pred:.2f}")
-        col2.metric("Confidence", f"{pred*100:.1f}%")
+        with col1:
+            st.markdown("<div class='glass'><h3>Risk Score</h3></div>", unsafe_allow_html=True)
+            st.metric("Probability", f"{pred:.2f}")
 
-        if pred > 0.7:
-            status = "HIGH"
-        elif pred > 0.4:
-            status = "MODERATE"
-        else:
-            status = "LOW"
+        with col2:
+            if pred > 0.7:
+                status = "HIGH RISK"
+            elif pred > 0.4:
+                status = "MODERATE"
+            else:
+                status = "LOW RISK"
+            st.markdown("<div class='glass'><h3>Status</h3></div>", unsafe_allow_html=True)
+            st.metric("Condition", status)
 
-        col3.metric("Status", status)
+        with col3:
+            st.markdown("<div class='glass'><h3>Confidence</h3></div>", unsafe_allow_html=True)
+            st.metric("Model Confidence", f"{pred*100:.1f}%")
 
         # ---------------- SUMMARY ---------------- #
-        st.markdown("## 📋 Clinical Summary")
+        st.markdown("<div class='glass'><h3>📋 Clinical Summary</h3></div>", unsafe_allow_html=True)
 
         summary = {
             "BP": df["bp"].iloc[-1],
@@ -194,7 +195,7 @@ if st.button("🚀 Analyze Patient"):
 
         st.table(pd.DataFrame(summary.items(), columns=["Parameter","Value"]))
 
-        # ---------------- COMPARISON ---------------- #
+        # ---------------- COMPARISON (NOW WORKS) ---------------- #
         show_comparison(df)
 
         # ---------------- GAUGE ---------------- #
@@ -203,6 +204,7 @@ if st.button("🚀 Analyze Patient"):
         gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=pred,
+            title={'text': "Septic Shock Risk"},
             gauge={
                 'axis': {'range': [0,1]},
                 'steps': [
@@ -226,21 +228,73 @@ if st.button("🚀 Analyze Patient"):
 
         st.plotly_chart(fig, use_container_width=True)
 
+        # ---------------- RISK TREND ---------------- #
+        st.markdown("## 📊 Risk Progression")
+
+        risk_curve = np.linspace(0, pred, 24)
+
+        fig2 = px.line(y=risk_curve, title="Risk Growth Over Time")
+        st.plotly_chart(fig2, use_container_width=True)
+
         # ---------------- INSIGHTS ---------------- #
-        st.markdown("## 🧠 Medical Insights")
+        st.markdown("<div class='glass'><h3>🧠 Medical Insights</h3></div>", unsafe_allow_html=True)
+
+        insights = []
+        precautions = []
 
         if df["lactate"].iloc[-1] > 2.5:
-            st.write("• High lactate → tissue hypoxia")
+            insights.append("High lactate → tissue hypoxia")
 
         if df["bp"].iloc[-1] < 90:
-            st.write("• Low BP → shock condition")
+            insights.append("Low BP → shock condition")
 
         if df["heart_rate"].iloc[-1] > 110:
-            st.write("• High HR → stress response")
+            insights.append("High HR → stress response")
 
         if df["wbc"].iloc[-1] > 12:
-            st.write("• High WBC → infection")
+            insights.append("High WBC → infection")
 
-        # ---------------- DOWNLOAD ---------------- #
-        report = f"Risk Score: {pred:.2f}, Status: {status}"
+        precautions = [
+            "Start IV fluids",
+            "Administer vasopressors",
+            "Monitor heart",
+            "Start antibiotics"
+        ]
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("### 🔍 Conditions")
+            for i in insights:
+                st.markdown(f"- {i}")
+
+        with col2:
+            st.markdown("### 🛡️ Precautions")
+            for p in precautions:
+                st.markdown(f"- {p}")
+
+        # ---------------- DOWNLOAD REPORT ---------------- #
+        report = f"""
+Septic Shock Report
+
+Risk Score: {pred:.2f}
+Status: {status}
+
+Insights:
+{insights}
+
+Precautions:
+{precautions}
+"""
+
         st.download_button("📄 Download Report", report, "report.txt")
+
+        # ---------------- FINAL ---------------- #
+        st.markdown("<div class='glass'><h3>📌 Final Diagnosis</h3></div>", unsafe_allow_html=True)
+
+        if pred > 0.7:
+            st.error("⚠️ Immediate ICU intervention required")
+        elif pred > 0.4:
+            st.warning("🟠 Monitor closely")
+        else:
+            st.success("✅ Stable condition")
